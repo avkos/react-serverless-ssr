@@ -1,0 +1,40 @@
+service: lambda-ssr
+frameworkVersion: '2 || 3'
+app: lambda-ssr
+
+custom:
+  serverless-offline:
+    httpPort: 4000
+    resourceRoute: true
+    includeModules: true # add excluded modules to the bundle
+    noPrependStageInUrl: true #remove stage /dev from url
+  webpack:
+    webpackConfig: 'webpack.config.js' # Name of webpack configuration file
+    includeModules:
+    packager: 'npm' # Packager that will be used to package your external modules
+    excludeFiles: /**/*.test.js # Provide a glob for files to ignore
+
+provider:
+  name: aws
+  lambdaHashingVersion: '20201221'
+  runtime: nodejs14.x
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+
+functions:
+  ssr:
+    memorySize: 10240
+    name: lambda-ssr
+    handler: ssr.apiHandler
+    timeout: 30
+    events:
+      - http:
+          method: GET
+          path: /
+          cors: true
+      - http:
+          method: ANY
+          path: /{proxy+}
+          cors: true
