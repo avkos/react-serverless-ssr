@@ -3,9 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@emotion/react": "^11.7.1",
+    "@emotion/styled": "^11.6.0",
+    "@mui/material": "^5.4.1",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
+    "global": "^4.4.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-router": "^6.2.1",
@@ -18,9 +22,11 @@
     "start": "react-scripts start",
     "dev": "./node_modules/.bin/sls offline",
     "build": "react-scripts build",
+    "build:prod": "cross-env PUBLIC_URL=https://d1vgmvparzrll1.cloudfront.net react-scripts build",
     "build:ssr": "webpack --mode=development",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "watch": "watch 'yarn build' ./src"
   },
   "eslintConfig": {
     "extends": [
@@ -44,17 +50,21 @@
     "@babel/core": "^7.17.0",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-react": "^7.16.7",
+    "@vendia/serverless-express": "^4.5.3",
     "babel-loader": "^8.2.3",
+    "cross-env": "^7.0.3",
     "css-loader": "^6.6.0",
     "dotenv": "^16.0.0",
+    "express": "^4.17.2",
     "file-loader": "^6.2.0",
     "html-loader": "^3.1.0",
     "ignore-loader": "^0.1.2",
+    "mocker-data-generator": "^2.12.0",
     "serverless": "^3.2.0",
     "serverless-offline": "^8.4.0",
-    "serverless-s3-sync": "^1.17.3",
     "serverless-webpack": "^5.6.1",
     "url-loader": "^4.1.1",
+    "watch": "^1.0.2",
     "webpack-cli": "^4.9.2"
   }
 }

@@ -11,7 +11,7 @@
     "test": "jest",
     "cdk": "cdk",
     "build:ssr": "cd ../app && yarn build:ssr",
-    "build:app": "cd ../app && yarn build",
+    "build:app": "cd ../app && yarn build:prod",
     "synth": "yarn cdk synth && sam local start-api -t ./cdk.out/AppStack.template.json",
     "start-local": "sam local start-api -t ./cdk.out/AppStack.template.json",
     "build-start" : "yarn build:ssr && yarn synth && yarn start-local",

@@ -2,32 +2,48 @@ import React from "react";
 import ReactDOMServer from "react-dom/server";
 import {SSRApp} from "./src/SSRApp";
 import indexFile from "./build/index.html";
-
-// import config from "../config.json";
-// import axios from "axios";
-// import Buffer from 'buffer'
 import zlib from 'zlib'
 
-// const indexFile = `
-// <!DOCTYPE html>
-// <html lang="en">
-//   <head>
-//     <meta charset="utf-8" />
-//     <meta name="viewport" content="width=device-width, initial-scale=1" />
-//     <meta name="theme-color" content="#000000" />
-//     <meta
-//       name="description"
-//       content="Web site created using create-react-app"
-//     />
-//     <title>React App</title>
-//   </head>
-//   <body>
-//     <noscript>You need to enable JavaScript to run this app.</noscript>
-//     <div id="root"></div>
-//     <div>Rendered on Edge</div>
-//   </body>
-// </html>
-// `;
+
+// MOCK DATA START
+import mocker from 'mocker-data-generator'
+const user = {
+    id:{
+        chance: 'integer({"min": 1})'
+    },
+    firstName: {
+        faker: 'name.firstName'
+    },
+    lastName: {
+        faker: 'name.lastName'
+    },
+    country: {
+        faker: 'address.country'
+    },
+    createdAt: {
+        faker: 'date.past'
+    },
+    // username: {
+    //     function: function() {
+    //         return (
+    //             this.object.lastName.substring(0, 5) +
+    //             this.object.firstName.substring(0, 3) +
+    //             Math.floor(Math.random() * 10)
+    //         )
+    //     }
+    // }
+}
+
+const res = mocker().schema('user', user, 10).buildSync()
+const users=res.user
+const getList = async ()=>{
+    return users.map(u=>({
+        ...u,
+        createdAt:new Date(u.createdAt).toISOString()
+    }))
+}
+// MOCK DATA END
+
 
 const gzip = (html) => new Promise((resolve, reject) => {
     const input = Buffer.from(html);
@@ -39,23 +55,24 @@ const gzip = (html) => new Promise((resolve, reject) => {
     });
 })
 const getHtml = async (url, {compress}) => {
-    const app = ReactDOMServer.renderToString(<SSRApp url={url}/>);
-
+    const users = await getList()
+    const initData = {users}
+    const app = ReactDOMServer.renderToString(<SSRApp url={url} initData={initData}/>);
     const html = indexFile.replace(
         '<div id="root"></div>',
         `<div id="root">${app}</div>`
-    );
+    ).replace('<scirpt></scirpt>','<script type="text/javascript">window.__data = JSON.parse(`'+JSON.stringify(initData)+'`);</script>')
+
     if (!compress) {
         return html
     }
     return await gzip(html)
 }
-
 export const edgeHandler = async (event) => {
     try {
         const request = event.Records[0].cf.request;
         const body = await getHtml(request.uri, {compress: true})
-        const response = {
+        return {
             status: "200",
             statusDescription: "OK",
             bodyEncoding: 'base64',
@@ -81,33 +98,21 @@ export const edgeHandler = async (event) => {
             },
             body,
         };
-        return response
     } catch (error) {
         console.log(`Error ${error.message}`);
         return `Error ${error}`;
     }
 };
-
 export const apiHandler = async (event) => {
     try {
-        console.log('event.path',event.path)
-        // event.path
-        // event.queryStringParameters
-        // event.queryStringParameters
-        // event.multiValueQueryStringParameters
-        // event.pathParameters
-        const request = {uri: '/'}
         const body = await getHtml(event.path, {compress: false})
-        console.log('body',body)
-        const response = {
+        return {
             statusCode: 200,
             headers: {
                 "Content-Type": "text/html",
-                // "Content-Encoding": "deflate"
             },
             body,
         };
-        return response
     } catch (error) {
         console.log(`Error ${error.message}`);
         return `Error ${error}`;

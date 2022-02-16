@@ -4,8 +4,10 @@ app: lambda-ssr
 
 custom:
   serverless-offline:
-    httpPort: 4000
-    resourceRoute: true
+    httpPort: 4001
+#    corsAllowOrigin: "*"
+#    corsAllowHeaders: "*"
+#    resourceRoutes: "true"
     includeModules: true # add excluded modules to the bundle
     noPrependStageInUrl: true #remove stage /dev from url
   webpack:
@@ -24,11 +26,30 @@ plugins:
   - serverless-offline
 
 functions:
+  static:
+    name: lambda-static
+    handler: ssr.staticHandler
+    events:
+      - http:
+          method: GET
+          path: /static/{proxy+}
+          cors: true
+      - http:
+          method: GET
+          path: /favicon.ico
+          cors: true
+      - http:
+          method: GET
+          path: /manifest.json
+          cors: true
+      - http:
+          method: GET
+          path: /logo192.png
+          cors: true
+
   ssr:
-    memorySize: 10240
     name: lambda-ssr
     handler: ssr.apiHandler
-    timeout: 30
     events:
       - http:
           method: GET
@@ -38,3 +59,4 @@ functions:
           method: ANY
           path: /{proxy+}
           cors: true
+

@@ -1,17 +1,20 @@
 import React from 'react';
 import './App.css';
 import './index.css';
-import {Home} from './components/Home'
-import {About} from './components/About'
+import {UserList} from './components/UserList'
 import {Routes, Route} from "react-router-dom";
-export const App = () => {
+import {ContextProvider} from "./components/context";
+import {User} from "./components/User";
+import {window} from "global";
+export const App = ({initData}) => {
     return (
-        <div className="App">
-            <h1>Welcome to React Router!</h1>
-            <Routes>
-                <Route path="/" element={<Home/>}/>
-                <Route path="about" element={<About/>}/>
-            </Routes>
-        </div>
+        <ContextProvider initData={(window && window.__data) || initData}>
+            <div className="App">
+                <Routes>
+                    <Route path="/" element={<UserList/>}/>
+                    <Route path="/user/:id" element={<User/>}/>
+                </Routes>
+            </div>
+        </ContextProvider>
     );
 }

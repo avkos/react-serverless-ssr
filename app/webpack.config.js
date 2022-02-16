@@ -6,9 +6,8 @@ const clientManifest = require('./build/asset-manifest.json'); // reactapp gener
 
 module.exports = {
 
-    entry: "./ssr.js",
+    entry: process.env.PUBLIC_URL ? "./ssr.js" : "./ssr-local.js",
     target: "node",
-
     externals: [],
 
     output: {
@@ -30,24 +29,22 @@ module.exports = {
                     {
                         loader: 'file-loader',
                         options: {
-                            publicPath: url => console.log(url) || url, // override the default publicPath to return the file utl as it's
+                            publicPath: url => url, // override the default publicPath to return the file utl as it's
                             emitFile: false, // don't emit assets, just use them as it is from the client build
                             name(resourcePath) {
-                                console.log('!!!!!',resourcePath)
+                                const localPublicUrl = String(process.env.LOCAL_PUBLIC_URL)
                                 const filename = path.basename(resourcePath); // get file name from the path
-                                console.log('filename',filename)
-                                console.log(clientManifest.files)
-                                const absolutePath = clientManifest.files[`static/media/${filename}`]; // load the current file url from client generated paths
-                                console.log('absolutePath',absolutePath)
+                                let absolutePath = ''
+                                if (localPublicUrl) {
+                                    absolutePath = clientManifest.files[`static/media/${filename}`].replace(process.env.PUBLIC_URL, localPublicUrl)
+                                } else {
+                                    absolutePath = clientManifest.files[`static/media/${filename}`]; // load the current file url from client generated paths
+                                }
                                 return absolutePath;
                             },
                         },
                     },
                 ],
-            },
-            {
-                test: /\.(scss|css)$/,
-                use: 'ignore-loader', // ignore loader for css and scss because they are handled in the client build
             },
             {
                 test: /\.html$/i,
@@ -56,7 +53,11 @@ module.exports = {
                     // Disables attributes processing
                     sources: false,
                 },
-            }
+            },
+            {
+                test: /\.(scss|css|md)$/,
+                use: 'ignore-loader', // ignore loader for css and scss because they are handled in the client build
+            },
         ],
     },
     plugins: [
