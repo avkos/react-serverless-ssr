@@ -15,7 +15,8 @@
     "synth": "yarn cdk synth && sam local start-api -t ./cdk.out/AppStack.template.json",
     "start-local": "sam local start-api -t ./cdk.out/AppStack.template.json",
     "build-start" : "yarn build:ssr && yarn synth && yarn start-local",
-    "deploy": "yarn build:app && yarn build:ssr && yarn cdk deploy"
+    "deploy": "yarn build:app && yarn build:ssr && yarn cdk deploy",
+    "destroy": "yarn cdk destroy"
   },
   "devDependencies": {
     "@types/jest": "^26.0.10",

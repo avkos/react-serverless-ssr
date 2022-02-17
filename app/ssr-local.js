@@ -5,8 +5,8 @@ import serverlessExpress from '@vendia/serverless-express'
 export const apiHandler = apiHandlerSsr
 
 const app = express();
-app.use(express.static(__dirname + '/../../build/static'));
-app.use(express.static(__dirname + '/../../build'));
+app.use(express.static(__dirname + '/../../build-local/static'));
+app.use(express.static(__dirname + '/../../build-local'));
 
 export const staticHandler = serverlessExpress({app})
 

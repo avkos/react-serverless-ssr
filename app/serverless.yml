@@ -4,7 +4,7 @@ app: lambda-ssr
 
 custom:
   serverless-offline:
-    httpPort: 4001
+    httpPort: 3005
 #    corsAllowOrigin: "*"
 #    corsAllowHeaders: "*"
 #    resourceRoutes: "true"

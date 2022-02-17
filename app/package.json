@@ -21,9 +21,9 @@
   "scripts": {
     "start": "react-scripts start",
     "dev": "./node_modules/.bin/sls offline",
-    "build": "react-scripts build",
-    "build:prod": "cross-env PUBLIC_URL=https://d1vgmvparzrll1.cloudfront.net react-scripts build",
-    "build:ssr": "webpack --mode=development",
+    "build": "cross-env BUILD_PATH='./build-local' react-scripts build",
+    "build:prod": "cross-env PUBLIC_URL=https://d2h3plfbaaipjv.cloudfront.net react-scripts build",
+    "build:ssr": "cross-env PUBLIC_URL=https://d2h3plfbaaipjv.cloudfront.net webpack --mode=development",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "watch": "watch 'yarn build' ./src"

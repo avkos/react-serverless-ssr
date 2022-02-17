@@ -3,15 +3,15 @@ const path = require('path');
 require('dotenv').config()
 const clientManifest = require('./build/asset-manifest.json'); // reactapp generated assets mappings after client build
 
-
+const isLocal = !process.env.PUBLIC_URL
 module.exports = {
 
-    entry: process.env.PUBLIC_URL ? "./ssr.js" : "./ssr-local.js",
+    entry: isLocal ? "./ssr-local.js" : "./ssr.js",
     target: "node",
     externals: [],
 
     output: {
-        path: path.resolve("build-ssr"),
+        path: path.resolve(isLocal ? "build-ssr-local" : "build-ssr"),
         filename: 'ssr.js',
         library: "index",
         libraryTarget: 'umd',
