@@ -1,9 +1,10 @@
 const webpack = require('webpack');
 const path = require('path');
 require('dotenv').config()
-const clientManifest = require('./build/asset-manifest.json'); // reactapp generated assets mappings after client build
+const clientManifest = require('./build-prod/asset-manifest.json'); // reactapp generated assets mappings after client build
 
 const isLocal = !process.env.PUBLIC_URL
+console.log('process.env.PUBLIC_URL',process.env.PUBLIC_URL)
 module.exports = {
 
     entry: isLocal ? "./ssr-local.js" : "./ssr.js",
@@ -32,15 +33,8 @@ module.exports = {
                             publicPath: url => url, // override the default publicPath to return the file utl as it's
                             emitFile: false, // don't emit assets, just use them as it is from the client build
                             name(resourcePath) {
-                                const localPublicUrl = String(process.env.LOCAL_PUBLIC_URL)
                                 const filename = path.basename(resourcePath); // get file name from the path
-                                let absolutePath = ''
-                                if (localPublicUrl) {
-                                    absolutePath = clientManifest.files[`static/media/${filename}`].replace(process.env.PUBLIC_URL, localPublicUrl)
-                                } else {
-                                    absolutePath = clientManifest.files[`static/media/${filename}`]; // load the current file url from client generated paths
-                                }
-                                return absolutePath;
+                                return clientManifest.files[`static/media/${filename}`]; // load the current file url from client generated paths
                             },
                         },
                     },

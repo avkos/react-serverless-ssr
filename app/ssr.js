@@ -1,14 +1,18 @@
 import React from "react";
 import ReactDOMServer from "react-dom/server";
 import {SSRApp} from "./src/SSRApp";
-import indexFile from "./build/index.html";
 import zlib from 'zlib'
+import indexFile from "./build-prod/index.html";
 
-
+let rawHtml = indexFile
+export const setHtml = (html) => {
+    rawHtml = html
+}
 // MOCK DATA START
 import mocker from 'mocker-data-generator'
+
 const user = {
-    id:{
+    id: {
         chance: 'integer({"min": 1})'
     },
     firstName: {
@@ -23,23 +27,19 @@ const user = {
     createdAt: {
         faker: 'date.past'
     },
-    // username: {
-    //     function: function() {
-    //         return (
-    //             this.object.lastName.substring(0, 5) +
-    //             this.object.firstName.substring(0, 3) +
-    //             Math.floor(Math.random() * 10)
-    //         )
-    //     }
-    // }
+    description: {
+        faker: 'lorem.paragraph'
+    }
 }
 
 const res = mocker().schema('user', user, 10).buildSync()
-const users=res.user
-const getList = async ()=>{
-    return users.map(u=>({
+const users = res.user
+const getList = async () => {
+    return users.map((u, index) => ({
         ...u,
-        createdAt:new Date(u.createdAt).toISOString()
+        id: index,
+        url: `https://picsum.photos/500/500?seed=${u.id}`,
+        createdAt: new Date(u.createdAt).toISOString()
     }))
 }
 // MOCK DATA END
@@ -58,24 +58,23 @@ const getHtml = async (url, {compress}) => {
     const users = await getList()
     const initData = {users}
     const app = ReactDOMServer.renderToString(<SSRApp url={url} initData={initData}/>);
-    const html = indexFile.replace(
+    const html = rawHtml.replace(
         '<div id="root"></div>',
         `<div id="root">${app}</div>`
     )
-        .replace('<scirpt></scirpt>','<script type="text/javascript">window.__data = JSON.parse(`'+JSON.stringify(initData)+'`);</script>')
+        .replace('<scirpt></scirpt>', '<script type="text/javascript">window.__data = JSON.parse(`' + JSON.stringify(initData) + '`);</script>')
 
-    console.log('html',html)
     if (!compress) {
         return html
     }
     return await gzip(html)
 }
 export const edgeHandler = async (event) => {
-    console.log('edgeHandler')
+    console.log('edgeHandler',event)
     try {
         const request = event.Records[0].cf.request;
         const body = await getHtml(request.uri, {compress: true})
-        const res =  {
+        const res = {
             status: "200",
             statusDescription: "OK",
             bodyEncoding: 'base64',
@@ -101,7 +100,7 @@ export const edgeHandler = async (event) => {
             },
             body,
         };
-        console.log('res',res)
+        console.log('res', res)
         return res
     } catch (error) {
         console.log(`Error ${error.message}`);
@@ -113,7 +112,7 @@ export const apiHandler = async (event) => {
     try {
         const body = await getHtml(event.path, {compress: false})
         console.log({
-            apiHandler:'apiHandler',
+            apiHandler: 'apiHandler',
             statusCode: 200,
             headers: {
                 "Content-Type": "text/html",

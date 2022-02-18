@@ -3,13 +3,14 @@ import * as lambda from 'aws-cdk-lib/aws-lambda'
 import * as cdk from 'aws-cdk-lib'
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as s3 from 'aws-cdk-lib/aws-s3'
+import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
 
 type TProps = {
     staticS3Bucket: s3.Bucket
     originAccessIdentity: cloudfront.OriginAccessIdentity
 }
 
-export class SsrEdgeStack extends Construct {
+export class SsrEdgeConstruct extends Construct {
     constructor(scope: Construct, id: string, props: TProps) {
         super(scope, id);
 
@@ -37,6 +38,32 @@ export class SsrEdgeStack extends Construct {
                         },
                         behaviors: [
                             {
+                                pathPattern: '/static/*.*',
+                            },
+                            {
+                                pathPattern: '/static/js/*.*',
+                            },
+                            {
+                                pathPattern: '/static/css/*.*',
+                            },
+                            {
+                                pathPattern: '/favicon.ico',
+                            },
+                            {
+                                pathPattern: '/manifest.json',
+                            },
+                            {
+                                pathPattern: '/logo192.png',
+                            }
+                        ]
+                    },
+                    {
+                        s3OriginSource: {
+                            s3BucketSource: props.staticS3Bucket,
+                            originAccessIdentity: props.originAccessIdentity
+                        },
+                        behaviors: [
+                            {
                                 isDefaultBehavior: true,
                                 lambdaFunctionAssociations: [
                                     {
@@ -50,6 +77,12 @@ export class SsrEdgeStack extends Construct {
                 ]
             }
         );
+        new s3deploy.BucketDeployment(this, 'DeployWithInvalidation', {
+            sources: [s3deploy.Source.asset('../app/build-prod')],
+            destinationBucket: props.staticS3Bucket,
+            distribution:ssrEdgeDistribution,
+            distributionPaths: ['/*'],
+        });
 
         new cdk.CfnOutput(scope, "CF_SSR_EDGE_URL", {
             value: `https://${ssrEdgeDistribution.distributionDomainName}`

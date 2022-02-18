@@ -9,10 +9,7 @@
 /coverage
 
 # production
-/build
-/build-ssr
-/build-local
-/build-ssr-local
+/build*
 
 # misc
 .DS_Store

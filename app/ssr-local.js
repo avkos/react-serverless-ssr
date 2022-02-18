@@ -1,7 +1,10 @@
-import {apiHandler as apiHandlerSsr} from './ssr'
+import {apiHandler as apiHandlerSsr, setHtml} from './ssr'
 import express from 'express'
 import serverlessExpress from '@vendia/serverless-express'
+import indexFile from "./build-local/index.html";
 
+console.log('indexFile',indexFile)
+setHtml(indexFile)
 export const apiHandler = apiHandlerSsr
 
 const app = express();

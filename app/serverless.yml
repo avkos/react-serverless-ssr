@@ -5,15 +5,12 @@ app: lambda-ssr
 custom:
   serverless-offline:
     httpPort: 3005
-#    corsAllowOrigin: "*"
-#    corsAllowHeaders: "*"
-#    resourceRoutes: "true"
     includeModules: true # add excluded modules to the bundle
     noPrependStageInUrl: true #remove stage /dev from url
   webpack:
     webpackConfig: 'webpack.config.js' # Name of webpack configuration file
     includeModules:
-    packager: 'npm' # Packager that will be used to package your external modules
+    packager: 'yarn' # Packager that will be used to package your external modules
     excludeFiles: /**/*.test.js # Provide a glob for files to ignore
 
 provider:
